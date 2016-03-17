@@ -1,23 +1,28 @@
 module CheckDigit::Luhn
   def self.checksum(num)
     CheckDigit::Util.valid_arg(num)
-    num.to_i * 10 + calc(num)
+    calc(num)
   end
 
   def self.valid?(num)
-    CheckDigit::Util.valid_arg(num)
-    calc(num.to_s[0..-2]) == num % 10
+    self.calc(num.div(10)) == num
   end
 
   private
   def self.calc(num)
-    digits = num.to_s.reverse.scan(/\d/).map { |x| x.to_i }
-    digits = digits.each_with_index.map { |d, i|
-      d *= 2 if i.even?
-      d > 9 ? d - 9 : d
-    }
-    sum = digits.inject(0) { |m, x| m + x }
-    mod = 10 - sum % 10
-    mod==10 ? 0 : mod
+    i=false
+    tot=0
+    tmp = num * 10
+    while tmp > 0 do
+      tmp, digit = tmp.divmod(10)
+      unless i=!i
+        digit *= 2
+        digit -= 9 if digit > 9
+      end
+      tot += digit
+    end
+    tot = tot.modulo(10)
+
+    num * 10 + (tot ==0 ? 0 : 10-tot)
   end
 end
